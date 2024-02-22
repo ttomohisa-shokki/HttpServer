@@ -22,7 +22,7 @@
 * [LICENSE](#license)
 
 ## 概要
-HttpServerは、HTTPリクエストを受信して、メッセージとして送信するIoT edgeモジュールです。
+HttpServerは、HTTPリクエストを受信して、メッセージとして送信するAzure IoT edgeモジュールです。
 
 ## 機能
 
@@ -176,7 +176,7 @@ Httpリクエストをメッセージとして転送する。
 
 #### 受信HTTPリクエスト例
 
-```JSON
+```
 ＜Header＞
   additionalData：{"prop1":"aaa"}
 
@@ -199,7 +199,7 @@ Httpリクエストをメッセージとして転送する。
 
 #### 出力例
 
-```JSON
+```
 ＜プロパティ＞
   {"prop1":"aaa"}
 
