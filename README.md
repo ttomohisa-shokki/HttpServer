@@ -77,7 +77,7 @@ HttpServerは、HTTPリクエストを受信して、メッセージとして送
 
 #### Desired Properties の記入例
 
-```json
+```
 {
   "output": "output1"
 }
@@ -101,7 +101,7 @@ HttpServerは、HTTPリクエストを受信して、メッセージとして送
 
 #### Create Option の記入例
 
-```json
+```
 {
   "HostConfig": {
     "PortBindings": {
@@ -117,7 +117,7 @@ HttpServerは、HTTPリクエストを受信して、メッセージとして送
 
 モジュール内部ポートに8080以外を使用する場合。
 
-```json
+```
 {
   "HostConfig": {
     "ExposedPorts":{
