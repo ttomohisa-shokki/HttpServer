@@ -10,6 +10,7 @@
   * [環境変数](#環境変数)
   * [Desired Properties](#desired-properties)
   * [Create Option](#create-option)
+  * [startupOrder](#startuporder)
 * [受信メッセージ](#受信メッセージ)
   * [受信HTTPリクエスト](#受信httpリクエスト)
 * [送信メッセージ](#送信メッセージ)
@@ -17,7 +18,11 @@
   * [Message Body](#message-body)
   * [Message Properties](#message-properties)
 * [Direct Method](#direct-method)
+  * [SetLogLevel](#setloglevel)
+  * [GetLogLevel](#getloglevel)
+* [ログ出力内容](#ログ出力内容)
 * [ユースケース](#ユースケース)
+  * [ケース ①](#Usecase1)
 * [Feedback](#feedback)
 * [LICENSE](#license)
 
@@ -77,8 +82,7 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 | Module Version | IoTEdge | edgeAgent | edgeHub  | amd64 verified on | arm64v8 verified on | arm32v7 verified on |
 | -------------- | ------- | --------- | -------- | ----------------- | ------------------- | ------------------- |
-| 4.0.1          | 1.4.27  | 1.4.27    | 1.4.27   | ubuntu20.04       | －                  | －                  |
-
+| 6.0.0          | 1.5.0   | 1.5.6     | 1.5.6    | ubuntu22.04       | －                  | －                  |
 
 ## Deployment 設定値
 
@@ -86,26 +90,23 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 #### 環境変数の値
 
-| Key                 | Required | Default | Description                                                     |
-| ------------------- | -------- | ------- |---------------------------------------------------------------- |
-| UriPrefix           |〇        |         | リクエストを待ち受けるポートを指定する。 <br>例）http://+:8080/ <br> （「+」の箇所は状況に応じてホスト名やIPアドレスでも可） |
-| LogLevel            |          | info    | 出力ログレベル。<br>["trace", "debug", "info", "warn", "error"]           |
-| TransportProtocol   |          | Amqp    | ModuleClientの接続プロトコル。<br>["Amqp", "Mqtt"]                        |
-| DefaultSendTopic    |          | IoTHub  | 送信時のトピック形式。 <br>["IoTHub", "Mqtt"]                            |
-| M2MqttFlag          |          | false   | 通信に利用するAPIの切り替えフラグ。<br>false ： IoTHubトピックのみ利用可能。<br>true ： IoTHubトピックとMqttトピックが利用可能。ただし、SasTokenの発行と設定が必要。 |
-| SasToken            | △       |         | M2MqttFlag=true時必須。edgeHubと接続する際に必要なモジュール毎の署名。 |
+| Key                       | Required | Default | Recommend | Description                                                     |
+| ------------------------- | -------- | ------- | --------- | ---------------------------------------------------------------- |
+| UriPrefix                 |          |         |           | リクエストを待ち受けるポートを指定する。 <br>例）http://+:8080/ <br> （「+」の箇所は状況に応じてホスト名やIPアドレスでも可） |
+| TransportProtocol         |          | Amqp    |           | ModuleClient の接続プロトコル。<br>["Amqp", "Mqtt"] |
+| LogLevel                  |          | info    |           | 出力ログレベル。<br>["trace", "debug", "info", "warn", "error"] |
 
 ### Desired Properties
 
 #### Desired Properties の値
 
-| JSON Key | Type   | Required | Default | Description                  |
-| -------- | ------ | -------- | ------- | ---------------------------- |
-| output   | string |          | output  | 送信するメッセージのoutput名 |
+| JSON Key | Type   | Required | Default | Recommend | Description                  |
+| -------- | ------ | -------- | ------- | --------- | ---------------------------- |
+| output   | string |          | output  |           | 送信するメッセージのoutput名 |
 
 #### Desired Properties の記入例
 
-```
+```json
 {
   "output": "output1"
 }
@@ -117,10 +118,10 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 | JSON Key                      | Type   | Required | Description                    |
 | ----------------------------- | ------ | -------- | ------------------------------ |
+| ExposedPorts                  | object | △        | モジュール内の公開ポート設定。ポートバインドに8080を使用する場合は不要。      |
+| &nbsp;  xxxx/tcp              | object | △        | 公開したいポート番号(xは任意の番号)。 |
+| &nbsp; &nbsp; {}              | object | △        | 値は不要。      |
 | HostConfig                    | object | 〇        |                                |
-| &nbsp; ExposedPorts           | object | △        | モジュール内の公開ポート設定。ポートバインドに8080を使用する場合は不要。      |
-| &nbsp; &nbsp; xxxx/tcp        | object | △        | 公開したいポート番号(xは任意の番号)。 |
-| &nbsp; &nbsp; &nbsp; {}       | object | △        | 値は不要。      |
 | &nbsp; PortBindings           | object | 〇        | ポートバインド設定             |
 | &nbsp; &nbsp; 8080/tcp        | object | 〇        | モジュール内の公開ポート       |
 | &nbsp; &nbsp; &nbsp; HostPort | string | 〇        | デバイスにマップするポート番号 |
@@ -129,7 +130,7 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 #### Create Option の記入例
 
-```
+```json
 {
   "HostConfig": {
     "PortBindings": {
@@ -145,12 +146,12 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 モジュール内部ポートに8080以外を使用する場合。
 
-```
+```json
 {
+  "ExposedPorts":{
+    "8081/tcp":{}
+  },
   "HostConfig": {
-    "ExposedPorts":{
-      "8081/tcp":{}
-    },
     "PortBindings": {
       "8081/tcp": [
         {
@@ -159,6 +160,20 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
       ]
     }
   }
+```
+### startupOrder
+
+#### startupOrder の値
+
+| JSON Key      | Type    | Required | Default | Recommend | Description |
+| ------------- | ------- | -------- | ------- | --------- | ----------- |
+| startupOrder  | uint    |  | 4294967295 | 200 | モジュールの起動順序。数字が小さいほど先に起動される。<br>["0"から"4294967295"] |
+
+#### startupOrder の記入例
+
+```json
+{
+  "startupOrder": 200
 }
 ```
 
@@ -196,15 +211,100 @@ HTTPリクエストの送信元に返すレスポンス(リクエストの内容
 | -   | リクエストのヘッダ「additionalData」キーの中身。名前や数は不定。 |
 
 ## Direct Method
-なし
+
+### SetLogLevel
+
+* 機能概要
+
+  実行中に一時的にLogLevelを変更する。<br>
+  変更はモジュール起動中または有効時間を過ぎるまで有効。<br>
+
+* payload
+
+  | JSON Key      | Type    | Required | default | Description |
+  | ------------- | ------- | -------- | -------- | ----------- |
+  | EnableSec     | integer  | 〇       |          | 有効時間(秒)。<br>-1:無期限<br>0:リセット(環境変数LogLevel相当に戻る)<br>1以上：指定時間(秒)経過まで有効。  |
+  | LogLevel      | string  | △       |          | EnableSec=0以外を指定時必須。指定したログレベルに変更する。<br>["trace", "debug", "info", "warn", "error"]  |
+
+  １時間"trace"レベルに変更する場合の設定例
+
+  ```json
+  {
+    "EnableSec": 3600,
+    "LogLevel": "trace"
+  }
+  ```
+
+* response
+
+  | JSON Key      | Type    | Description |
+  | ------------- | ------- | ----------- |
+  | status          | integer | 処理ステータス。<br>0:正常終了<br>その他:異常終了         |
+  | payload          | object  | レスポンスデータ。         |
+  | &nbsp; CurrentLogLevel | string  | 設定後のログレベル。（正常時のみ）<br>["trace", "debug", "info", "warn", "error"]  |
+  | &nbsp; Error | string  | エラーメッセージ（エラー時のみ）  |
+
+  ```json
+  {
+    "status": 0,
+    "paylaod":
+    {
+      "CurrentLogLevel": "trace"
+    }
+  }
+  ```
+
+### GetLogLevel
+
+* 機能概要
+
+  現在有効なLogLevelを取得する。<br>
+  通常は、LogLevel環境変数の設定値が返り、SetLogLevelで設定した有効時間内の場合は、その設定値が返る。<br>
+
+* payload
+
+  なし
+
+* response
+
+  | JSON Key      | Type    | Description |
+  | ------------- | ------- | ----------- |
+  | status          | integer | 処理ステータス。<br>0:正常終了<br>その他:異常終了         |
+  | payload          | object  | レスポンスデータ。         |
+  | &nbsp; CurrentLogLevel | string  | 現在のログレベル。（正常時のみ）<br>["trace", "debug", "info", "warn", "error"]  |
+  | &nbsp; Error | string  | エラーメッセージ（エラー時のみ）  |
+
+  ```json
+  {
+    "status": 0,
+    "paylaod":
+    {
+      "CurrentLogLevel": "trace"
+    }
+  }
+  ```
+
+## ログ出力内容
+
+| LogLevel | 出力概要 |
+| -------- | -------- |
+| error    | [初期化/desired更新/desired取り込み/メッセージ受信]失敗         |
+| warn     | エッジランタイムとの接続リトライ失敗<br>環境変数の1部値不正         |
+| info     | 環境変数の値<br>desired更新通知<br>環境変数の値未設定のためDefault値適用<br>メッセージ[送信/受信]通知         |
+| debug    | 無し     |
+| trace    | メソッドの開始・終了<br>受信メッセージBody  |
 
 ## ユースケース
 
-Httpリクエストをメッセージとして転送する。
+<a id="Usecase1"></a>
+
+### ケース①
+
+「IoT Edge Device-1」から「IoT Edge Device-2」へHttpClient・HttpServerを使用してメッセージを転送する。
 
 #### 受信HTTPリクエスト例
 
-```
+```JSON
 ＜Header＞
   additionalData：{"prop1":"aaa"}
 
@@ -222,12 +322,12 @@ Httpリクエストをメッセージとして転送する。
 ```
 
 ### 出力結果
-受信したものがそのまま送信メッセージとなる。
-リクエストのヘッダに「additionalData」というキーの値がある場合、それを送信メッセージのプロパティに設定する。
+
+HttpClientが受信したものがそのまま送信メッセージとなる。
 
 #### 出力例
 
-```
+```JSON
 ＜プロパティ＞
   {"prop1":"aaa"}
 
