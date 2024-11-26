@@ -2,8 +2,10 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading.Tasks;
+using TICO.GAUDI.Commons;
+using TICO.GAUDI.Commons.Test;
 
-namespace HttpServer
+namespace IotedgeV2HttpServer.Test
 {
     public class HttpServerTest
     {
