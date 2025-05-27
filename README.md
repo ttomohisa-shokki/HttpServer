@@ -189,7 +189,7 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 | 本文                  | メッセージの body       |
 
 ※1 additionalData項目自体を複数指定する事はできない。<br>複数のメッセージプロパティを付与する場合、まとめて指定する必要がある。<br>例）
-```JSON
+```
    additionalData：{"prop1":"aaa", "prop2":"123"}
 ```
 
@@ -310,7 +310,7 @@ HTTPリクエストの送信元に返すレスポンス(リクエストの内容
 
 #### 受信HTTPリクエスト例
 
-```JSON
+```
 ＜Header＞
   additionalData：{"prop1":"aaa"}
 
@@ -333,7 +333,7 @@ HttpClientが受信したものがそのまま送信メッセージとなる。
 
 #### 出力例
 
-```JSON
+```
 ＜プロパティ＞
   {"prop1":"aaa"}
 
