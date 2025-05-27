@@ -43,7 +43,7 @@ HttpServerは、HTTPリクエストを受信して、メッセージとして送
 ![schematic diagram](./docs/img/schematic_diagram.drawio.png)
 
 ## Quick Start
-1. Personal Accese tokenを作成
+1. Personal Access tokenを作成
 （参考: [個人用アクセス トークンを管理する](https://docs.github.com/ja/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)）
 
 2. リポジトリをクローン
@@ -51,7 +51,7 @@ HttpServerは、HTTPリクエストを受信して、メッセージとして送
 git clone https://github.com/Project-GAUDI/HttpServer.git
 ```
 
-3. ./src/nuget_template.configの<GITHUB_USERNAME>と<PERSONAL_ACCESS_TOKEN>を自身のユーザー名とPersonal Accese tokenに書き換えて、ファイル名をnuget.configに変更してください
+3. ./src/nuget_template.configの<GITHUB_USERNAME>と<PERSONAL_ACCESS_TOKEN>を自身のユーザー名とPersonal Access tokenに書き換えて、ファイル名をnuget.configに変更してください
 
 4. Dockerイメージをビルド
 ```
@@ -80,9 +80,9 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 ## 動作保証環境
 
-| Module Version | IoTEdge | edgeAgent | edgeHub  | amd64 verified on | arm64v8 verified on | arm32v7 verified on |
-| -------------- | ------- | --------- | -------- | ----------------- | ------------------- | ------------------- |
-| 6.0.0          | 1.5.0   | 1.5.6     | 1.5.6    | ubuntu22.04       | －                  | －                  |
+| Module Version | IoTEdge         | edgeAgent       | edgeHub         | amd64 verified on | arm64v8 verified on | arm32v7 verified on |
+| -------------- | --------------- | --------------- | --------------- | ----------------- | ------------------- | ------------------- |
+| 6.0.2          | 1.5.0<br>1.5.16 | 1.5.6<br>1.5.19 | 1.5.6<br>1.5.19 | ubuntu22.04       | －                  | －                  |
 
 ## Deployment 設定値
 
@@ -92,7 +92,7 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 
 | Key                       | Required | Default | Recommend | Description                                                     |
 | ------------------------- | -------- | ------- | --------- | ---------------------------------------------------------------- |
-| UriPrefix                 |          |         |           | リクエストを待ち受けるポートを指定する。 <br>例）http://+:8080/ <br> （「+」の箇所は状況に応じてホスト名やIPアドレスでも可） |
+| UriPrefix                 | 〇       |         |           | リクエストを待ち受けるポートを指定する。 <br>例）http://+:8080/ <br> （「+」の箇所は状況に応じてホスト名やIPアドレスでも可） |
 | TransportProtocol         |          | Amqp    |           | ModuleClient の接続プロトコル。<br>["Amqp", "Mqtt"] |
 | LogLevel                  |          | info    |           | 出力ログレベル。<br>["trace", "debug", "info", "warn", "error"] |
 
@@ -185,8 +185,14 @@ docker push ghcr.io/<YOUR_GITHUB_USERNAME>/httpserver:<VERSION>
 | --------------------- | ----------------------- |
 | メソッド              | POST                    |
 | ヘッダー              | リクエストヘッダー      |
-| &nbsp; additionalData | メッセージの properties |
+| &nbsp; additionalData | メッセージの properties(※1) |
 | 本文                  | メッセージの body       |
+
+※1 additionalData項目自体を複数指定する事はできない。<br>複数のメッセージプロパティを付与する場合、まとめて指定する必要がある。<br>例）
+```JSON
+   additionalData：{"prop1":"aaa", "prop2":"123"}
+```
+
 
 ## 送信メッセージ
 
